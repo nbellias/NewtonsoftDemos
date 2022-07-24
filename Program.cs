@@ -8,6 +8,8 @@ namespace NewtonsoftDemos
         static void Main(string[] args)
         {
             Console.WriteLine(JsonConvert.SerializeObject(Customer()));
+            Console.WriteLine();
+            AnotherCase();
         }
 
         // Create a dynamic object with as many attributes you want
@@ -67,6 +69,26 @@ namespace NewtonsoftDemos
             myCartItems.Add(anotherItem);
 
             return myCartItems;
+        }
+
+        static void AnotherCase()
+        {
+            List<string> aList = new List<string>();
+
+            aList.Add($"{{ \"Key\": \"Id\", \"KeyType\": \"string\", \"Value\": \"1234\" }}");
+            aList.Add($"{{ \"Key\": \"Description\", \"KeyType\": \"string\", \"Value\": \"Washing Machine\" }}");
+            aList.Add($"{{ \"Key\": \"Price\", \"KeyType\": \"decimal\", \"Value\": {250m} }}");
+
+            JArray myCases = new JArray();
+
+            foreach(var doc in aList)
+            {
+                dynamic docObj = JsonConvert.DeserializeObject(doc);
+                docObj.Add("MyKey", docObj.Key);
+                myCases.Add(docObj);
+            }
+
+            Console.WriteLine(JsonConvert.SerializeObject(myCases));
         }
     }
 }
