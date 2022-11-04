@@ -1,5 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema;
+using Newtonsoft.Json.Schema.Generation;
 
 namespace NewtonsoftDemos
 {
@@ -20,7 +23,18 @@ namespace NewtonsoftDemos
             Console.WriteLine(JsonConvert.SerializeObject(createCustomer()));
             Console.WriteLine();
 
-            AnotherCase();
+            anotherCase();
+            Console.WriteLine();
+
+            //JSON Schema examples
+            Console.WriteLine(validateJSON());
+            Console.WriteLine();
+
+            Console.WriteLine(generateSchema().ToString());
+            Console.WriteLine();
+
+            validateDeserialization();
+            Console.WriteLine();
         }
 
         //Serialize JSON example
@@ -126,7 +140,7 @@ namespace NewtonsoftDemos
             return myCartItems;
         }
 
-        static void AnotherCase()
+        static void anotherCase()
         {
             List<string> aList = new List<string>();
 
@@ -145,6 +159,58 @@ namespace NewtonsoftDemos
 
             Console.WriteLine(JsonConvert.SerializeObject(myCases));
         }
+
+        //Validate JSON
+        static bool validateJSON()
+        {
+            JSchema schema = JSchema.Parse(@"{
+              'type': 'object',
+              'properties': {
+                'name': {'type':'string'},
+                'roles': {'type': 'array'}
+              }
+            }");
+
+            JObject user = JObject.Parse(@"{
+              'name': 'Arnie Admin',
+              'roles': ['Developer', 'Administrator']
+            }");
+
+            bool valid = user.IsValid(schema);
+
+            return valid;
+        }
+
+        //Generate Schema
+        static JSchema generateSchema()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(Account));
+
+            return schema;
+        }
+
+        //Validate Serialization based on a given schema
+        static void validateDeserialization()
+        {
+            JSchema schema = JSchema.Parse(@"{
+                  'type': 'array',
+                  'item': {'type':'string'}
+                }");
+            JsonTextReader reader = new JsonTextReader(new StringReader(@"[
+                  'Developer',
+                  'Administrator'
+                ]"));
+
+            JSchemaValidatingReader validatingReader = new JSchemaValidatingReader(reader);
+            validatingReader.Schema = schema;
+
+            JsonSerializer serializer = new JsonSerializer();
+            List<string> roles = serializer.Deserialize<List<string>>(validatingReader);
+
+            Console.WriteLine($"Roles: {String.Join(",", roles)}");
+        }
+
     }
 
     class Product
@@ -159,5 +225,12 @@ namespace NewtonsoftDemos
         public string Name { get; set; }
         public DateTime ReleaseDate { get; set; }
         public string [] Genres { get; set; }
+    }
+
+    public class Account
+    {
+        [EmailAddress]
+        [JsonProperty("email", Required = Required.Always)]
+        public string Email;
     }
 }
