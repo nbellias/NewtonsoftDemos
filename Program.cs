@@ -8,6 +8,10 @@ namespace NewtonsoftDemos
 {
     internal class Program
     {
+        /* 
+         * https://github.com/nbellias/NewtonsoftDemos 
+         */
+
         static void Main(string[] args)
         {
             Console.WriteLine(serializeJSONExample());
@@ -38,6 +42,8 @@ namespace NewtonsoftDemos
         }
 
         //Serialize JSON example
+        //Serialization is a process of transforming an object into text
+        //in order to save it in a text file
         static string serializeJSONExample()
         {
             Product product = new Product();
@@ -51,6 +57,9 @@ namespace NewtonsoftDemos
         }
 
         //Deserialize JSON example
+        //Deserialization is a process of transforming text into an object
+        //according to a schema, e.g. JSON or XML schema,
+        //in order to handle it appropriately in our code
         static Movie deserializeJSONExample()
         {
             string json = @"{
