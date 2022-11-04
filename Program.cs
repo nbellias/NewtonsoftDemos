@@ -7,17 +7,72 @@ namespace NewtonsoftDemos
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(JsonConvert.SerializeObject(Customer()));
+            Console.WriteLine(serializeJSONExample());
             Console.WriteLine();
+
+            Movie m = deserializeJSONExample();
+            Console.WriteLine($"Name:{m.Name}, Release Date:{m.ReleaseDate.ToString("dd/MM/yyyy")}, GENRES:{String.Join(",", m.Genres)}");
+            Console.WriteLine();
+
+            Console.WriteLine(linqToJSON());
+            Console.WriteLine();
+
+            Console.WriteLine(JsonConvert.SerializeObject(createCustomer()));
+            Console.WriteLine();
+
             AnotherCase();
         }
 
-        // Create a dynamic object with as many attributes you want
-        static dynamic Customer()
+        //Serialize JSON example
+        static string serializeJSONExample()
+        {
+            Product product = new Product();
+            product.Name = "Apple";
+            product.Expiry = new DateTime(2022, 11, 15);
+            product.Sizes = new string[] { "Small" };
+
+            string json = JsonConvert.SerializeObject(product);
+
+            return json;
+        }
+
+        //Deserialize JSON example
+        static Movie deserializeJSONExample()
+        {
+            string json = @"{
+                  'Name': 'Bad Boys',
+                  'ReleaseDate': '1995-4-7T00:00:00',
+                  'Genres': [
+                    'Action',
+                    'Comedy'
+                  ]
+                }";
+
+            Movie m = JsonConvert.DeserializeObject<Movie>(json);
+
+            return m;
+        }
+
+        static string linqToJSON()
+        {
+            JArray array = new JArray();
+            array.Add("Hello World");
+            array.Add(new DateTime(2022, 11, 4));
+
+            JObject o = new JObject();
+            o["MyArray"] = array;
+
+            string json = o.ToString();
+
+            return json;
+        }
+
+        // Create a dynamic object with as many attributes one desires
+        static dynamic createCustomer()
         {
             dynamic myObject = new JObject();
 
-            JArray myCart = CustomerCartItems();
+            JArray myCart = createCustomerCartItems();
 
             myObject.Add("Id", Guid.NewGuid());
             myObject.Add("Name", "Vasilis");
@@ -27,7 +82,7 @@ namespace NewtonsoftDemos
             return myObject;
         }
 
-        static dynamic CustomerCartItems()
+        static dynamic createCustomerCartItems()
         {
             JArray myCartItems = new JArray();
 
@@ -90,5 +145,19 @@ namespace NewtonsoftDemos
 
             Console.WriteLine(JsonConvert.SerializeObject(myCases));
         }
+    }
+
+    class Product
+    {
+        public string Name { get; set; }
+        public DateTime Expiry { get; set; }
+        public string [] Sizes { get; set; }
+    }
+
+    class Movie
+    {
+        public string Name { get; set; }
+        public DateTime ReleaseDate { get; set; }
+        public string [] Genres { get; set; }
     }
 }
